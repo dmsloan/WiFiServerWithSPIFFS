@@ -11,12 +11,11 @@
 
 #include <U8x8lib.h> // for the Heltec WiFi LoRa 32 builtin OLED
 // the OLED used
-// U8X8_SSD1306_128X64_NONAME_SW_I2C u8x8(/* clock=*/15, /* data=*/4, /* reset=*/16); //! this needs to be changed to enable Hardware I2C
-U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8x8(U8G2_R2, OLED_CLOCK, OLED_DATA, OLED_RESET); // uses Software I2C and results in a framerate of 5 FPS
+U8X8_SSD1306_128X64_NONAME_SW_I2C u8x8(/* clock=*/SCL_OLED, /* data=*/SDA_OLED, /* reset=*/RST_OLED); //! this needs to be changed to enable Hardware I2C
 
 // Replace with your network credentials
-const char* ssid = "IBE-OfficeTrendnet";
-const char* password = "ibeinc9121";
+const char* ssid = "Sloan-Home";
+const char* password = "04052002";
 
 // Set LED GPIO
 const int ledPin = LED_BUILTIN;                //LED on pin 5 for the Wemos, pin 13 on the Feather.
