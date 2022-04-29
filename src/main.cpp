@@ -8,14 +8,15 @@
 #include "WiFi.h"
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
+#include "Secrets.h"    //all the secret stuff goes here such as ssid, passwords, etc.
 
 #include <U8x8lib.h> // for the Heltec WiFi LoRa 32 builtin OLED
 // the OLED used
 U8X8_SSD1306_128X64_NONAME_SW_I2C u8x8(/* clock=*/SCL_OLED, /* data=*/SDA_OLED, /* reset=*/RST_OLED); //! this needs to be changed to enable Hardware I2C
 
 // Replace with your network credentials
-const char* ssid = "Sloan-Home";
-const char* password = "04052002";
+const char* ssid = SSID;
+const char* password = PASSWORD;
 
 // Set LED GPIO
 const int ledPin = LED_BUILTIN;                //LED on pin 5 for the Wemos, pin 13 on the Feather.
@@ -56,9 +57,10 @@ void setup(){
 
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
+  Serial.printf("Connecting to %s ..", ssid);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
-    Serial.println("Connecting to WiFi..");
+    Serial.print(".");
   }
 
   // Print ESP32 Local IP Address

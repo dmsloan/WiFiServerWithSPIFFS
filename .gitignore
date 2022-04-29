@@ -11,8 +11,9 @@
 
 # PlatformIO
 .pio
-WiFiInfo.h
 Gsender_32Info.h
+Secrets.h
+WiFiInfo.h
 
 ### Windows ###
 # Windows image file caches
