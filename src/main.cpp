@@ -10,16 +10,23 @@
 #include "SPIFFS.h"
 #include "Secrets.h"    //all the secret stuff goes here such as ssid, passwords, etc.
 
+#ifdef SCL_OLED
 #include <U8x8lib.h> // for the Heltec WiFi LoRa 32 builtin OLED
 // the OLED used
-U8X8_SSD1306_128X64_NONAME_SW_I2C u8x8(/* clock=*/SCL_OLED, /* data=*/SDA_OLED, /* reset=*/RST_OLED); //! this needs to be changed to enable Hardware I2C
+  U8X8_SSD1306_128X64_NONAME_SW_I2C u8x8(/* clock=*/SCL_OLED, /* data=*/SDA_OLED, /* reset=*/RST_OLED); //! this needs to be changed to enable Hardware I2C
+#endif
 
 // Replace with your network credentials
 const char* ssid = SSID;
 const char* password = PASSWORD;
 
 // Set LED GPIO
-const int ledPin = LED_BUILTIN;                //LED on pin 5 for the Wemos, pin 13 on the Feather.
+#ifdef LED_BUILTIN
+  const int ledPin = LED_BUILTIN;                //LED on pin 5 for the Wemos, pin 13 on the Feather.
+#else
+  const int ledPin = 13;
+#endif
+
 // Stores LED state
 String ledState;
 
@@ -47,7 +54,6 @@ void setup(){
   Serial.begin(115200);
   pinMode(ledPin, OUTPUT);
 
-  u8x8.begin();                              // start the builtin OLED
 
   // Initialize SPIFFS
   if(!SPIFFS.begin(true)){
@@ -66,11 +72,14 @@ void setup(){
   // Print ESP32 Local IP Address
   Serial.println(WiFi.localIP());
 
+#ifdef SCL_OLED
+  u8x8.begin();                              // start the builtin OLED
 //   // Print ESP32 Local IP Address on OLED
   String WiFilocalIP = WiFi.localIP().toString();
 //   //u8x8.setFont(u8x8_font_courB24_3x4_n);
-//   u8x8.clearDisplay();
-//   u8x8.draw1x2String(0, 0, (char *)WiFilocalIP.c_str()); // display the ip address assigned by the DHCP server on the OLED
+   u8x8.clearDisplay();
+   u8x8.draw1x2String(0, 0, (char *)WiFilocalIP.c_str()); // display the ip address assigned by the DHCP server on the OLED
+#endif
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
