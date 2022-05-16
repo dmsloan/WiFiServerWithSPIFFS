@@ -9,6 +9,7 @@
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
 #include "Secrets.h"    //all the secret stuff goes here such as ssid, passwords, etc.
+#include "time.h"
 
 #ifdef SCL_OLED
 #include <U8x8lib.h> // for the Heltec WiFi LoRa 32 builtin OLED
@@ -16,7 +17,7 @@
   U8X8_SSD1306_128X64_NONAME_SW_I2C u8x8(/* clock=*/SCL_OLED, /* data=*/SDA_OLED, /* reset=*/RST_OLED); //! this needs to be changed to enable Hardware I2C
 #endif
 
-// Replace with your network credentials
+// Defined in Secrets.h
 const char* ssid = SSID;
 const char* password = PASSWORD;
 
@@ -26,6 +27,11 @@ const char* password = PASSWORD;
 #else
   const int ledPin = 13;
 #endif
+
+// settings for NTP
+const char* ntpServer = "pool.ntp.org";
+long timezone = -8; // Pacific time zone
+byte daysavetime = 1; // 1 specifies daylight savings time 0 specifies standard time
 
 // Stores LED state
 String ledState;
@@ -48,12 +54,11 @@ String processor(const String& var){
   }
   return String();
 }
- 
+
 void setup(){
   // Serial port for debugging purposes
   Serial.begin(115200);
   pinMode(ledPin, OUTPUT);
-
 
   // Initialize SPIFFS
   if(!SPIFFS.begin(true)){
@@ -70,7 +75,31 @@ void setup(){
   }
 
   // Print ESP32 Local IP Address
+  Serial.println('\n');
+  Serial.println("Connection established");  
+  Serial.print("IP address:\t");
   Serial.println(WiFi.localIP());
+
+  time_t now;
+  Serial.print("Time() before connecting to the time server is ");
+  time(&now);
+  Serial.println(now); //this is the number of seconds since January 1st 1970)
+
+  // Get the NTP time
+  Serial.println("Contacting Time Server");
+  // Get time from the time server and update local time
+	configTime(timezone*3600, daysavetime*3600, ntpServer, "0.pool.ntp.org", "1.pool.ntp.org");
+  struct tm timeinfo;
+    if (getLocalTime(&timeinfo)) {
+      char time_str[16];
+      strftime(time_str, 16, "%H:%M:%S", &timeinfo);
+      Serial.printf("\nNow is : %d-%02d-%02d %02d:%02d:%02d\n",(timeinfo.tm_year)+1900,(timeinfo.tm_mon)+1, timeinfo.tm_mday,timeinfo.tm_hour , timeinfo.tm_min, timeinfo.tm_sec);
+      Serial.println(time_str);
+    } 
+    if(!getLocalTime(&timeinfo)){
+      Serial.println("Failed to obtain time");
+      return;
+    }
 
 #ifdef SCL_OLED
   u8x8.begin();                              // start the builtin OLED
